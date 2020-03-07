@@ -1,66 +1,43 @@
-import libtcod
+import libtcod, types, constants
 
-proc clear(con: Console) = consoleClear(con)
-proc putChar(con: Console, w, h: cint, c: char, flag: BkGndFlag) = consolePutChar(con, w, h, c, flag)
 proc alt(key: Key): bool = key.lalt or key.ralt
 proc consoleToggleFullscreen() = consoleSetFullscreen(not consoleIsFullscreen())
 
-const
-  width: cint = 80
-  height: cint = 50
-  fpsLimit: cint = 60
-  root: Console = nil
 
-type
-  Player = object
-    x, y: cint
-  Game = object
-    player: Player
-
-proc move(player: var Player, x, y: cint) =
-  player.x.inc x
-  player.y.inc y
-
-proc handle_keys(player: var Player): bool =
+proc handle_keys(game: var Game): bool =
   ## updates the player coordinates and returns if the game should quit
   let key: Key = consoleWaitForKeypress(true)
   case key.vk:
   of K_ENTER:
     if key.alt: consoleToggleFullscreen()
   of K_ESCAPE: return true
-  of K_UP: player.move(0, -1)
-  of K_DOWN: player.move(0, 1)
-  of K_LEFT: player.move(-1, 0)
-  of K_RIGHT: player.move(1, 0)
+  of K_UP: game.player.move(0, -1, game)
+  of K_DOWN: game.player.move(0, 1, game)
+  of K_LEFT: game.player.move(-1, 0, game)
+  of K_RIGHT: game.player.move(1, 0, game)
   else:
-    ## default
+    ## don't do anything otherwise
   false
 
-proc render(game: var Game) =
-  ## draws the current state to the console
-  root.clear()
-  root.putChar(game.player.x, game.player.y, '@', BKGND_NONE)
-  consoleFlush()
-
-proc init(): Game =
-  ## sets up the main console
+proc init(width, height: cint): Game =
   consoleSetCustomFont(
     fontFile = "resources/arial10x10.png",
     flags = FONT_LAYOUT_TCOD or FONT_TYPE_GREYSCALE
   )
   consoleInitRoot(width, height, "Nim/rougelike")
   sysSetFps(fpsLimit)
-  root.consoleSetDefaultForeground(WHITE)
-  Game(player: Player(x: width div 2, y: height div 2))
+  initGame(width, height)
 
 proc mainLoop(game: var Game) =
   while not consoleIsWindowClosed():
-    render(game)
-    if handle_keys(game.player):
+    game.render()
+    if handle_keys(game):
       break
+  if consoleIsFullscreen():
+    consoleSetFullscreen(false)
 
 when isMainModule:
   ## the main entry point
-  var game = init()
+  var game = init(widthScreen, heightScreen)
 
-  mainLoop(game)
+  game.mainLoop()

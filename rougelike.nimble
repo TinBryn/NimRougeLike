@@ -8,11 +8,11 @@ srcDir        = "src"
 bin           = @["rougelike"]
 
 
-
 # Dependencies
 
 requires "nim >= 1.0.0"
 requires "libtcod_nim >= 1.112.0"
+
 
 # Tasks
 

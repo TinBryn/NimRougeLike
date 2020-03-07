@@ -1,33 +1,33 @@
 import libtcod
 
+proc clear(con: Console) = consoleClear(con)
+proc putChar(con: Console, w, h: cint, c: char, flag: BkGndFlag) = consolePutChar(con, w, h, c, flag)
+
 const
-  screenWidth: cint = 80
-  screenHeight: cint = 50
-  limitFPS: cint = 20
+  width: cint = 80
+  height: cint = 50
+  fpsLimit: cint = 60
+  root: Console = nil
 
-type
-  Tcod = object
-    root: Console
-
-when isMainModule:
-  ##the main entry point
+proc init() =
+  ## sets up the main console
   consoleSetCustomFont(
     fontFile = "resources/arial10x10.png",
     flags = FONT_LAYOUT_TCOD or FONT_TYPE_GREYSCALE
   )
+  consoleInitRoot(width, height, "Nim/rougelike")
+  sysSetFps(fpsLimit)
 
-  consoleInitRoot(
-    w = screenWidth,
-    h = screenHeight,
-    title = "Nim/libtcod tutorial")
-  
-  var tcod = Tcod(root: consoleNew(screenWidth, screenHeight))
-
-  sysSetFps(limitFPS)
-
+proc mainLoop() =
+  root.consoleSetDefaultForeground(WHITE)
   while not consoleIsWindowClosed():
-    tcod.root.consoleSetDefaultForeground(WHITE)
-    tcod.root.consoleClear()
-    tcod.root.consolePutChar(1, 1, '@', BKGND_NONE)
+    root.clear()
+    root.putChar(width div 2, height div 2, '@', BKGND_NONE)
     consoleFlush()
     discard consoleWaitForKeypress(false)
+
+when isMainModule:
+  ## the main entry point
+  init()
+
+  mainLoop()

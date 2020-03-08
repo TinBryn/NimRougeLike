@@ -15,9 +15,10 @@ type
     ## the state of the current game
     buffer: Console
     objects: seq[Entity]
+    interactive: Natural
     map*: Map
 
-
+#
 proc render*(game: var Game) =
   ## draws the map and then the objects on top
   game.buffer.consoleClear()
@@ -26,11 +27,22 @@ proc render*(game: var Game) =
   for obj in game.objects:
     obj.draw(game.buffer)
 
-  game.buffer.consoleBlit(0, 0, widthMap, heightMap, root, 0, 0, 1.0, 1.0)
+  consoleBlit(
+    game.buffer,          #source
+    0, 0,                 #source position
+    widthMap, heightMap,  #source size
+    root,                 #destination
+    0, 0,                 #destination position
+    1.0, 1.0              #blending
+  )
   consoleFlush()
 
-proc player*(game: var Game): var Entity = game.objects[0]
+#
+proc player*(game: var Game): var Entity =
+  ## returns the player entity
+  game.objects[game.interactive]
 
+#
 proc init*(td: typedesc[Game], width, height: cint): Game =
   ## sets up the main console
   result = Game(
@@ -39,6 +51,7 @@ proc init*(td: typedesc[Game], width, height: cint): Game =
       Entity.init(25, 22, '@', WHITE),
       Entity.init(55, 22, '@', YELLOW)
     ],
+    interactive: 0,
     map: make_map(widthMap, heightMap)
   )
 

@@ -1,14 +1,11 @@
-from libtcod import
-  Console, Color, consolePutChar, consoleSetDefaultForeground, consoleClear,
-  BKGND_NONE, BKGND_SET, consoleSetCharBackground, consoleNew,
-  WHITE, YELLOW, consoleBlit, consoleFlush
+import libtcod except Map
 
 import entities, maps
 
 const
   ## map properties
-  widthMap: cint = 80
-  heightMap: cint = 45
+  widthMap = 80
+  heightMap = 45
 
   ## general properties
   root: Console = nil
@@ -39,11 +36,10 @@ proc init*(td: typedesc[Game], width, height: cint): Game =
   result = Game(
     buffer: consoleNew(width, height),
     objects: @[
-      Entity.init(width div 2, height div 2, '@', WHITE),
-      Entity.init(width div 2 - 5, height div 2, '@', YELLOW)
+      Entity.init(25, 22, '@', WHITE),
+      Entity.init(55, 22, '@', YELLOW)
     ],
-    map: Map.init(widthMap, heightMap)
+    map: make_map(widthMap, heightMap)
   )
 
-  result.map[30, 22] = Tile.wall
-  result.map[50, 22] = Tile.wall
+  

@@ -13,9 +13,17 @@ const
   fpsLimit*: cint = 60
   root*: Console = nil
 
-proc alt(key: Key): bool = key.lalt or key.ralt
-proc consoleToggleFullscreen() = consoleSetFullscreen(not consoleIsFullscreen())
+#
+proc alt(key: Key): bool =
+  ## detects if either alt key is press
+  key.lalt or key.ralt
 
+#
+proc consoleToggleFullscreen() =
+  ## switches the root console to fullscreen or windowed
+  consoleSetFullscreen(not consoleIsFullscreen())
+
+#
 proc handle_keys(game: var Game): bool =
   ## updates the player coordinates and returns if the game should quit
   let key: Key = consoleWaitForKeypress(true)
@@ -31,7 +39,9 @@ proc handle_keys(game: var Game): bool =
     ## don't do anything otherwise
   false
 
+#
 proc init(width, height: cint): Game =
+  ## loads up the console and creates a game
   consoleSetCustomFont(
     fontFile = "resources/arial10x10.png",
     flags = FONT_LAYOUT_TCOD or FONT_TYPE_GREYSCALE
@@ -40,7 +50,9 @@ proc init(width, height: cint): Game =
   sysSetFps(fpsLimit)
   Game.init(width, height)
 
+#
 proc mainLoop(game: var Game) =
+  ## loops the game handling input and rendering to game
   while not consoleIsWindowClosed():
     game.render()
     if handle_keys(game):
@@ -48,8 +60,8 @@ proc mainLoop(game: var Game) =
   if consoleIsFullscreen():
     consoleSetFullscreen(false)
 
+#
 when isMainModule:
   ## the main entry point
   var game = init(widthScreen, heightScreen)
-
   game.mainLoop()

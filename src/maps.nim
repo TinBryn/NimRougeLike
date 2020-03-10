@@ -22,13 +22,29 @@ type
 #
 proc init*(td: typedesc[Rect], x, y, w, h: int): Rect =
   ## create a new rectangle with the top left corner and dimensions
-  Rect(l: x, t: y, r: x+w, b: y+h)
+  Rect(l: x, t: y, r: x+w-1, b: y+h-1)
+
+#
+proc center*(rect: Rect): tuple[x, y: int] =
+  ## give the approximate center of a rectangle
+  (
+    (rect.l + rect.r) div 2,
+    (rect.t + rect.b) div 2
+  )
+
+#
+proc intersectsWith*(self: Rect, other: Rect): bool =
+  ## returns whether 2 rectangles intersect
+  self.l <= other.r and
+  self.r >= other.l and
+  self.t <= other.b and
+  self.b >= other.t
 
 #
 iterator indicies*(rect: Rect): tuple[x, y: int] =
   ## all x,y pairs inside a rectangle
-  for x in rect.l..<rect.r:
-    for y in rect.t..<rect.b:
+  for x in rect.l..rect.r:
+    for y in rect.t..rect.b:
       yield (x, y)
 
 #
@@ -42,11 +58,11 @@ proc wall*(td: typedesc[Tile]): Tile =
   Tile(flags: {blockSight, blocked})
 #
 
-proc init*(td: typedesc[Map], w, h: Natural): Map =
+template init*(td: typedesc[Map], w, h: Natural, init: untyped): Map =
   ## creates a new map of empty tiles with a width and height
   Map(
     shape: (w, h),
-    data: newSeqWith(w * h, Tile.wall)
+    data: newSeqWith(w * h, init)
   )
 
 #
@@ -90,13 +106,3 @@ proc create_v_tunnel*(map: var Map, x, t, b: int) =
   ## horizontal tunnel
   for y in t..b:
     map[x, y] = Tile.empty
-
-#
-proc make_map*(w, h: Natural): Map =
-  ## makes a map with 2 rooms
-  result = Map.init(w, h)
-  let room1 = Rect.init(20, 15, 10, 15)
-  let room2 = Rect.init(50, 15, 10, 15)
-  result.create_room(room1)
-  result.create_room(room2)
-  result.create_h_tunnel(25, 55, 22)

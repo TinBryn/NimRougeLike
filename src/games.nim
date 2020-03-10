@@ -1,6 +1,6 @@
 import libtcod except Map
 
-import entities, maps
+import entities, maps, generators
 
 const
   ## map properties
@@ -51,8 +51,8 @@ proc init*(td: typedesc[Game], width, height: cint): Game =
       Entity.init(25, 22, '@', WHITE),
       Entity.init(55, 22, '@', YELLOW)
     ],
-    interactive: 0,
-    map: make_map(widthMap, heightMap)
+    interactive: 0
   )
+  result.map = make_map(widthMap, heightMap, result.player)
 
   

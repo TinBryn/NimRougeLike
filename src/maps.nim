@@ -37,10 +37,10 @@ proc center*(rect: Rect): tuple[x, y: int] =
 #
 proc intersectsWith*(self: Rect, other: Rect): bool =
   ## returns whether 2 rectangles intersect
-  self.l <= other.r and
-  self.r >= other.l and
-  self.t <= other.b and
-  self.b >= other.t
+  self.l <= other.r + 1 and
+  self.r >= other.l - 1 and
+  self.t <= other.b + 1 and
+  self.b >= other.t - 1
 
 #
 iterator indicies*(rect: Rect): tuple[x, y: int] =
@@ -113,10 +113,10 @@ proc create_room*(map: var Map, room: Rect) =
 #
 proc create_h_tunnel*(map: var Map, l, r, y: int) =
   ## horizontal tunnel
-  for x in l..r:
+  for x in min(l,r)..max(l, r):
     map[x, y] = Tile.empty
 #
 proc create_v_tunnel*(map: var Map, x, t, b: int) =
   ## horizontal tunnel
-  for y in t..b:
+  for y in min(t, b)..max(t, b):
     map[x, y] = Tile.empty

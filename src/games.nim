@@ -5,7 +5,7 @@ import entities, maps, generators
 const
   ## map properties
   widthMap = 80
-  heightMap = 45
+  heightMap = 50
 
   ## general properties
   root: Console = nil
@@ -48,11 +48,11 @@ proc init*(td: typedesc[Game], width, height: cint): Game =
   result = Game(
     buffer: consoleNew(width, height),
     objects: @[
-      Entity.init(25, 22, '@', WHITE),
-      Entity.init(55, 22, '@', YELLOW)
+      Entity.init(0, 0, '@', WHITE)
     ],
     interactive: 0
   )
+  generators.init()
   result.map = make_map(widthMap, heightMap, result.player)
 
 #

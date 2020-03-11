@@ -2,16 +2,11 @@ import libtcod, games, entities
 
 const
   ## screen dimensions
-  widthScreen*: cint = 80
-  heightScreen*: cint = 50
-  
-  ## map properties
-  widthMap*: cint = 80
-  heightMap*: cint = 45
+  widthScreen: cint = 80
+  heightScreen: cint = 50
 
   ## general properties
-  fpsLimit*: cint = 60
-  root*: Console = nil
+  fpsLimit: cint = 60
 
 #
 proc alt(key: Key): bool =
@@ -67,7 +62,7 @@ proc run_game() =
   game.mainLoop()
 
 #
-proc test_collition() =
+proc test_collition*() =
   ##
   init(widthScreen, heightScreen)
   var game = Game.initTest(widthScreen, heightScreen)
@@ -76,4 +71,4 @@ proc test_collition() =
 #
 when isMainModule:
   ## the main entry point
-  test_collition()
+  run_game()

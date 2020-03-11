@@ -1,5 +1,4 @@
 import random, sequtils
-import libtcod except Map
 import maps, entities
 
 const
@@ -9,7 +8,8 @@ const
 
 
 # random number generator
-randomize()
+proc init*() =
+  randomize()
 
 #
 proc test_collition_map*(width, height: Natural): Map =
@@ -17,13 +17,15 @@ proc test_collition_map*(width, height: Natural): Map =
   result = Map.init(width, height, Tile.wall)
 
   let room1 = Rect.init(20, 20, 11, 20)
+  let room2 = Rect.init(31, 10, 19, 20)
   result.create_room(room1)
-  let room2 = Rect.init(30, 10, 20, 20)
   if room2.intersectsWith(room1):
     ##
+    result.create_room(room1, Tile.error())
     result.create_room(room2, Tile.error())
   else:
     ##
+    result.create_room(room1, Tile.empty())
     result.create_room(room2, Tile.empty())
 
 #
@@ -42,11 +44,26 @@ proc makeMap*(width, height: Natural, player: var Entity): Map =
       x = rand(0..width - w - 1)
       y = rand(0..height - h - 1)
       newRoom = Rect.init(x, y, w, h)
-    let
-      failed = rooms.any(proc (room: Rect): bool = room.intersectsWith(newRoom))
+      failed = rooms.anyIt(it.intersectsWith(newRoom))
     
-    if not failed:
+    if failed:
+      ##
+      # result.create_room(newRoom, Tile.error())
+    else:
+      ##
       result.create_room(newRoom)
       let (newX, newY) = newRoom.center()
       if  rooms.len == 0:
-        player = Entity.init(newX, newY, '@', WHITE)
+        player.move(newX, newY)
+      else:
+        ##
+        let (prevX, prevY) = rooms[^1].center
+        if rand(0..1) == 1:
+          result.create_h_tunnel(prevX, newX, prevY)
+          result.create_v_tunnel(newX, prevY, newY)
+        else:
+          result.create_v_tunnel(prevX, prevY, newY)
+          result.create_h_tunnel(prevX, newX, newY)
+      rooms.add(newRoom)
+
+      

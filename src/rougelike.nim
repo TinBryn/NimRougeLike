@@ -40,7 +40,7 @@ proc handle_keys(game: var Game): bool =
   false
 
 #
-proc init(width, height: cint): Game =
+proc init(width, height: cint) =
   ## loads up the console and creates a game
   consoleSetCustomFont(
     fontFile = "resources/arial10x10.png",
@@ -48,7 +48,7 @@ proc init(width, height: cint): Game =
   )
   consoleInitRoot(width, height, "Nim/rougelike")
   sysSetFps(fpsLimit)
-  Game.init(width, height)
+
 
 #
 proc mainLoop(game: var Game) =
@@ -61,7 +61,19 @@ proc mainLoop(game: var Game) =
     consoleSetFullscreen(false)
 
 #
+proc run_game() =
+  init(widthScreen, heightScreen)
+  var game = Game.init(widthScreen, heightScreen)
+  game.mainLoop()
+
+#
+proc test_collition() =
+  ##
+  init(widthScreen, heightScreen)
+  var game = Game.initTest(widthScreen, heightScreen)
+  game.mainLoop()
+
+#
 when isMainModule:
   ## the main entry point
-  var game = init(widthScreen, heightScreen)
-  game.mainLoop()
+  test_collition()

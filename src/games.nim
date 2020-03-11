@@ -55,4 +55,10 @@ proc init*(td: typedesc[Game], width, height: cint): Game =
   )
   result.map = make_map(widthMap, heightMap, result.player)
 
-  
+#
+proc initTest*(td: typedesc[Game], width, height: cint): Game =
+  result = Game(
+    buffer: consoleNew(width, height),
+    objects: @[Entity.init(30, 30, '@', WHITE)],
+    map: test_collition_map(width, height)
+  )

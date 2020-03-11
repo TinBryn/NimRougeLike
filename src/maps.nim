@@ -3,11 +3,13 @@ import libtcod, sequtils
 const
   wallDark* = colorRGB(0, 0, 100)
   groundDark* = colorRGB(50, 50, 150)
+  groundError* = colorRGB(150, 50, 50)
 
 type
   TileFlags* = enum
     blockSight,
-    blocked
+    blocked,
+    intersect
   
   Tile* = object
     flags*: set[TileFlags]
@@ -51,13 +53,17 @@ iterator indicies*(rect: Rect): tuple[x, y: int] =
 proc empty*(td: typedesc[Tile]): Tile =
   ## creates a new empty tile
   Tile(flags: {})
-#
 
+#
 proc wall*(td: typedesc[Tile]): Tile =
   ## creates a new wall tile
   Tile(flags: {blockSight, blocked})
-#
 
+#
+proc error*(td: typedesc[Tile]): Tile =
+  Tile(flags: {intersect})
+
+#
 template init*(td: typedesc[Map], w, h: Natural, init: untyped): Map =
   ## creates a new map of empty tiles with a width and height
   Map(
@@ -85,16 +91,24 @@ iterator indicies*(map: Map): tuple[x, y: int] =
 proc draw*(map: Map, con: Console) =
   ## draws this map to the console
   for x, y in map.indicies:
-    if blockSight in map[x, y].flags:
-      consoleSetCharBackground(con, x.int32, y.int32, wallDark, BKGND_SET)
-    else:
-      consoleSetCharBackground(con, x.int32, y.int32, groundDark, BKGND_SET)
+    if  intersect in map[x, y].flags:
+      ##
+      consoleSetCharBackground(con, x.int32, y.int32, groundError, BKGND_SET)
+    else: 
+      if blockSight in map[x, y].flags:
+        consoleSetCharBackground(con, x.int32, y.int32, wallDark, BKGND_SET)
+      else:
+        consoleSetCharBackground(con, x.int32, y.int32, groundDark, BKGND_SET)
+
+#
+template create_room*(map: var Map, room: Rect, tile: untyped) =
+  ## make all the tiles in the room passable
+  for x, y in room.indicies:
+    map[x, y] = tile
 
 #
 proc create_room*(map: var Map, room: Rect) =
-  ## make all the tiles in the room passable
-  for x, y in room.indicies:
-    map[x, y] = Tile.empty
+  create_room(map, room, Tile.empty)
 
 #
 proc create_h_tunnel*(map: var Map, l, r, y: int) =

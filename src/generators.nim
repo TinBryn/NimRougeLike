@@ -11,6 +11,20 @@ const
 # random number generator
 randomize()
 
+#
+proc test_collition_map*(width, height: Natural): Map =
+  ##
+  result = Map.init(width, height, Tile.wall)
+
+  let room1 = Rect.init(20, 20, 11, 20)
+  result.create_room(room1)
+  let room2 = Rect.init(30, 10, 20, 20)
+  if room2.intersectsWith(room1):
+    ##
+    result.create_room(room2, Tile.error())
+  else:
+    ##
+    result.create_room(room2, Tile.empty())
 
 #
 proc makeMap*(width, height: Natural, player: var Entity): Map =

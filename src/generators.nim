@@ -1,5 +1,5 @@
 import random, sequtils
-import maps, entities
+import levels, entities
 
 const
   roomMaxSize = 10
@@ -12,12 +12,12 @@ proc init*() =
   randomize()
 
 #
-proc test_collition_map*(width, height: Natural): Map =
+proc test_collision_level*(width, height: Natural): Level =
   ##
-  result = Map.init(width, height, Tile.wall)
+  result = Level.init(width, height, Tile.wall)
 
   let room1 = Rect.init(20, 20, 11, 20)
-  let room2 = Rect.init(31, 10, 19, 20)
+  let room2 = Rect.init(40, 10, 19, 20)
   result.create_room(room1)
   if room2.intersectsWith(room1):
     ##
@@ -29,11 +29,11 @@ proc test_collition_map*(width, height: Natural): Map =
     result.create_room(room2, Tile.empty())
 
 #
-proc makeMap*(width, height: Natural, player: var Entity): Map =
-  ## makes a randomly generated map of connected rooms
+proc makeLevel*(width, height: Natural, player: var Entity): Level =
+  ## makes a randomly generated level of connected rooms
 
-  # make a solid map
-  result = Map.init(width, height, Tile.wall)
+  # make a solid level
+  result = Level.init(width, height, Tile.wall)
   # place to store rooms
   var rooms: seq[Rect] = @[]
   
@@ -41,8 +41,8 @@ proc makeMap*(width, height: Natural, player: var Entity): Map =
     let
       w = rand(roomMinSize..roomMaxSize)
       h = rand(roomMinSize..roomMaxSize)
-      x = rand(0..width - w - 1)
-      y = rand(0..height - h - 1)
+      x = rand(1..width - w - 2)
+      y = rand(1..height - h - 2)
       newRoom = Rect.init(x, y, w, h)
       failed = rooms.anyIt(it.intersectsWith(newRoom))
     

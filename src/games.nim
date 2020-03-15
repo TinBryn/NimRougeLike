@@ -1,6 +1,5 @@
 import libtcod except Map
-
-import entities, maps, generators
+import entities, levels, generators
 
 const
   ## map properties
@@ -16,13 +15,14 @@ type
     buffer: Console
     objects: seq[Entity]
     interactive: Natural
-    map*: Map
+    level*: Level
+    fov: libtcod.Map
 
 #
 proc render*(game: var Game) =
   ## draws the map and then the objects on top
   game.buffer.consoleClear()
-  game.map.draw(game.buffer)
+  game.level.draw(game.buffer)
 
   for obj in game.objects:
     obj.draw(game.buffer)
@@ -50,15 +50,18 @@ proc init*(td: typedesc[Game], width, height: cint): Game =
     objects: @[
       Entity.init(0, 0, '@', WHITE)
     ],
-    interactive: 0
+    interactive: 0,
+    fov: mapNew(width, height)
   )
   generators.init()
-  result.map = make_map(widthMap, heightMap, result.player)
-
+  result.level = make_level(width, height, result.player)
+  for x,y in pairs(result.level):
+    ##
+    
 #
 proc initTest*(td: typedesc[Game], width, height: cint): Game =
   result = Game(
     buffer: consoleNew(width, height),
     objects: @[Entity.init(30, 30, '@', WHITE)],
-    map: test_collition_map(width, height)
+    level: test_collision_level(width, height)
   )

@@ -1,4 +1,4 @@
-import libtcod, games, entities
+import libtcod, games, entities, tcodutils
 
 const
   ## screen dimensions
@@ -8,15 +8,10 @@ const
   ## general properties
   fpsLimit: cint = 60
 
-#
-proc alt(key: Key): bool =
-  ## detects if either alt key is press
-  key.lalt or key.ralt
-
-#
-proc consoleToggleFullscreen() =
-  ## switches the root console to fullscreen or windowed
-  consoleSetFullscreen(not consoleIsFullscreen())
+  ## fov properties
+  fovAlgo = FOV_BASIC
+  fovLightWalls = true
+  torchRadius: cint = 10
 
 #
 proc handle_keys(game: var Game): bool =
@@ -26,10 +21,10 @@ proc handle_keys(game: var Game): bool =
   of K_ENTER:
     if key.alt: consoleToggleFullscreen()
   of K_ESCAPE: return true
-  of K_UP: game.player.move(0, -1, game.map)
-  of K_DOWN: game.player.move(0, 1, game.map)
-  of K_LEFT: game.player.move(-1, 0, game.map)
-  of K_RIGHT: game.player.move(1, 0, game.map)
+  of K_UP: game.player.move(0, -1, game.level)
+  of K_DOWN: game.player.move(0, 1, game.level)
+  of K_LEFT: game.player.move(-1, 0, game.level)
+  of K_RIGHT: game.player.move(1, 0, game.level)
   else:
     ## don't do anything otherwise
   false
@@ -56,13 +51,13 @@ proc mainLoop(game: var Game) =
     consoleSetFullscreen(false)
 
 #
-proc run_game() =
+proc run_game() {.used.} =
   init(widthScreen, heightScreen)
   var game = Game.init(widthScreen, heightScreen)
   game.mainLoop()
 
 #
-proc test_collition*() =
+proc test_collision() {.used.} =
   ##
   init(widthScreen, heightScreen)
   var game = Game.initTest(widthScreen, heightScreen)

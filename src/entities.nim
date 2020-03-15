@@ -1,4 +1,4 @@
-import libtcod, maps
+import libtcod, levels
 
 type
   Entity* = object
@@ -18,12 +18,12 @@ proc move*(self: var Entity, h, v: int) =
   inc(self.y, v)
 
 #
-proc move*(self: var Entity, h, v: int, map: maps.Map) =
-  ## checks the map if the entity can move and if so moves
+proc move*(self: var Entity, h, v: int, level: Level) =
+  ## checks the level if the entity can move and if so moves
   let
     newx = self.x + h
     newy = self.y + v
-  if newx in 0..<map.shape.w and newy in 0..<map.shape.h and blocked notin map[newx, newy].flags:
+  if newx in 0..<level.shape.w and newy in 0..<level.shape.h and blocked notin level[newx, newy].flags:
     self.x = newx
     self.y = newy
 #

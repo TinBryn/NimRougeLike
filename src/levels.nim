@@ -1,8 +1,10 @@
-import libtcod, sequtils
+import sequtils, libtcod
 
 const
   wallDark* = colorRGB(0, 0, 100)
+  wallLight* = colorRGB(130, 110, 50)
   groundDark* = colorRGB(50, 50, 150)
+  groundLight* = colorRGB(200, 180, 50)
   groundError* = colorRGB(150, 50, 50)
 
 type
@@ -14,7 +16,7 @@ type
   Tile* = object
     flags*: set[TileFlags]
   
-  Map* = object
+  Level* = object
     shape*: tuple[w, h: Natural]
     data: seq[Tile]
 
@@ -43,7 +45,7 @@ proc intersectsWith*(self: Rect, other: Rect): bool =
   self.b >= other.t - 1
 
 #
-iterator indicies*(rect: Rect): tuple[x, y: int] =
+iterator pairs*(rect: Rect): tuple[x, y: int] =
   ## all x,y pairs inside a rectangle
   for x in rect.l..rect.r:
     for y in rect.t..rect.b:
@@ -64,59 +66,59 @@ proc error*(td: typedesc[Tile]): Tile =
   Tile(flags: {intersect})
 
 #
-template init*(td: typedesc[Map], w, h: Natural, init: untyped): Map =
-  ## creates a new map of empty tiles with a width and height
-  Map(
+template init*(td: typedesc[Level], w, h: Natural, init: untyped): Level =
+  ## creates a new level of empty tiles with a width and height
+  Level(
     shape: (w, h),
     data: newSeqWith(w * h, init)
   )
 
 #
-proc `[]`*(map: Map, x, y: Natural): Tile =
-  ## accesses a tile in the map
-  map.data[x + y * map.shape.w]
+proc `[]`*(level: Level, x, y: Natural): Tile =
+  ## accesses a tile in the level
+  level.data[x + y * level.shape.w]
 #
-proc `[]=`*(map: var Map, x, y: Natural, tile: Tile) =
-  ## assigns a tile in the map to a new tile
-  map.data[x + y * map.shape.w] = tile
+proc `[]=`*(level: var Level, x, y: Natural, tile: Tile) =
+  ## assigns a tile in the level to a new tile
+  level.data[x + y * level.shape.w] = tile
 
 #
-iterator indicies*(map: Map): tuple[x, y: int] =
-  ## scans over each x, y tuple in the map
-  for x in 0..<map.shape.w:
-    for y in 0..<map.shape.h:
+iterator pairs*(level: Level): tuple[x, y: int] =
+  ## scans over each x, y tuple in the level
+  for x in 0..<level.shape.w:
+    for y in 0..<level.shape.h:
       yield (x, y)
 
 #
-proc draw*(map: Map, con: Console) =
-  ## draws this map to the console
-  for x, y in map.indicies:
-    if  intersect in map[x, y].flags:
+proc draw*(level: Level, con: Console) =
+  ## draws this level to the console
+  for x, y in level:
+    if  intersect in level[x, y].flags:
       ##
       consoleSetCharBackground(con, x.int32, y.int32, groundError, BKGND_SET)
     else: 
-      if blockSight in map[x, y].flags:
+      if blockSight in level[x, y].flags:
         consoleSetCharBackground(con, x.int32, y.int32, wallDark, BKGND_SET)
       else:
         consoleSetCharBackground(con, x.int32, y.int32, groundDark, BKGND_SET)
 
 #
-template create_room*(map: var Map, room: Rect, tile: untyped) =
+template create_room*(level: var Level, room: Rect, tile: untyped) =
   ## make all the tiles in the room passable
-  for x, y in room.indicies:
-    map[x, y] = tile
+  for x, y in room:
+    level[x, y] = tile
 
 #
-proc create_room*(map: var Map, room: Rect) =
-  create_room(map, room, Tile.empty)
+proc create_room*(level: var Level, room: Rect) =
+  create_room(level, room, Tile.empty)
 
 #
-proc create_h_tunnel*(map: var Map, l, r, y: int) =
+proc create_h_tunnel*(level: var Level, l, r, y: int) =
   ## horizontal tunnel
   for x in min(l,r)..max(l, r):
-    map[x, y] = Tile.empty
+    level[x, y] = Tile.empty
 #
-proc create_v_tunnel*(map: var Map, x, t, b: int) =
+proc create_v_tunnel*(level: var Level, x, t, b: int) =
   ## horizontal tunnel
   for y in min(t, b)..max(t, b):
-    map[x, y] = Tile.empty
+    level[x, y] = Tile.empty
